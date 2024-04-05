@@ -1,0 +1,1312 @@
+openapi: "3.0.0"
+info:
+  title: LinkedIn Clone
+
+  version: "1.0.0"
+security:
+     - JWT: []
+servers:
+  - url: http://localhost:8080
+paths:
+  /user/signup:
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Creates a new user
+      requestBody:
+        description: Request to create new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userSchema'
+        required: true
+      responses:
+        '201':
+          description: user Register Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userSchema'
+        '409':
+            description: Duplicate key error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example:  email already exists
+        '404':
+          description: 'Not Found: This response is shown if the request for information is not there or it could not be imported'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /user/{userId}:
+    put:
+      tags:
+        - Users
+      parameters:
+        - name: 'userId'
+          in: path
+          required: true
+          description: The UUID of comment
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: update the existing comment
+      description: update the existing comment
+      responses:
+        '200':
+          description: comment updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/usersSchema'
+                properties:
+                  message:
+                    type: string
+                    example: User updated successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided postId is not valid, 1234
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error         
+                
+  /users:                
+    get:
+      summary: Get a list of users
+      description: Returns an array containing all the users
+      operationId: getUsers
+      tags:
+        - Users
+      responses:
+        "200":
+          description: get users data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FetchUsersResponse"
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  
+  /users/login:
+   post:
+      tags:
+        - Users
+      summary: login existing user
+      description: login existing user
+      requestBody:
+        description: Request to login the user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+        required: true
+      responses:
+        '200':
+          description: login successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loginResponse'
+        
+        '404':
+          description: 'Not Found: This response is shown if the request for information is not there or it could not be imported'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  /post:
+   post:
+      tags:
+        - Posts
+      summary: create new post 
+      description: create new post 
+      requestBody:
+        description: Request to create new post
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postSchema'
+        required: true
+      responses:
+        '200':
+          description: post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createPostResponse'
+        
+        '404':
+          description: 'Not Found: This response is shown if the request for information is not there or it could not be imported'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+   get:
+      summary: Get all posts
+      description: Get an existing test
+      parameters:
+        - name: JWT token
+          in: header
+          required: true
+          description: The UUID of the test
+          schema:
+            type: string
+            format: string
+            example: a2f6b8d7-8e5c-4023-913f-6f81d4ca92b0
+      tags:
+        - Posts
+     
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fetchAllPostsResponse"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided postId is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Post not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /posts/{postId}:
+   get:
+      summary: Get particular post 
+      description: Get single post
+      parameters:
+        - name: 'postId'
+          in: path
+          required: true
+          description: The UUID of the post
+          schema:
+            type: string
+            format: string
+            example: a2f6b8d7-8e5c-4023-913f-6f81d4ca92b0
+      tags:
+        - Posts
+     
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fetchPostsResponse"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided postId is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Post not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+   patch:
+      tags:
+        - Posts
+      parameters:
+        - name: 'postId'
+          in: path
+          required: true
+          description: The UUID of post
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: update the existing post
+      description: update the existing post
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Post updated successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Post not found
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided postId is not valid, 1234
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+ 
+   delete:
+      tags:
+        - Posts
+      parameters:
+        - name: 'postId'
+          in: path
+          required: true
+          description: The UUID of post
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: Delete the post
+      description: Deletes the post and set the status to inactive. Returns a message after deleting the post
+      requestBody:
+        description: Request to delete post
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deletedBy:
+                  type: string
+                  example: user@zenmonk.tech    
+        required: true
+      responses:
+        '200':
+          description: post deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: post deleted successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: post not found
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided postId is not valid.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  /comments:
+    post:
+      tags:
+        - Comments
+      summary: Create a comment
+      description: Creates a new comment
+      requestBody:
+        description: Request to create new comment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createComment'
+        required: true
+      responses:
+        '201':
+          description: comment added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createCommentRes'
+        '404':
+          description: 'Not Found: This response is shown if the request for information is not there or it could not be imported'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error                
+    get:
+      summary: Get a list of all comments
+      description: Returns an array containing all the comments
+      operationId: getComments
+      tags:
+        - Comments
+      responses:
+        "200":
+          description: get comments data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fetchComments"
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  
+ 
+ 
+  /comments/{commentId}:
+   get:
+      summary: Get particular comment 
+      description: Get single comment
+      parameters:
+        - name: 'commentId'
+          in: path
+          required: true
+          description: The UUID of the comment
+          schema:
+            type: string
+            format: string
+            example: a2f6b8d7-8e5c-4023-913f-6f81d4ca92b0
+      tags:
+        - Comments
+      # parameters:
+      #   - name: 'advisorId'
+      #     in: path
+      #     required: true
+      #     description: The UUID of advisor
+      #     example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      #     schema:
+      #       type: string
+      #       format: uuid
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fetchCommentResponse"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided commentId is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Post not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+   put:
+      tags:
+        - Comments
+      parameters:
+        - name: 'commentId'
+          in: path
+          required: true
+          description: The UUID of comment
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: update the existing comment
+      description: update the existing comment
+      responses:
+        '200':
+          description: comment updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: comment updated successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: comment not found
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided postId is not valid, 1234
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+   delete:
+      tags:
+        - Comments
+      parameters:
+        - name: 'commentId'
+          in: path
+          required: true
+          description: The UUID of comment
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: Delete the comment
+      description: Deletes the comment 
+      requestBody:
+        description: Request to delete comment
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deletedBy:
+                  type: string
+                  example: user@zenmonk.tech    
+        required: true
+      responses:
+        '200':
+          description: comment deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: comment deleted successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: comment not found
+        '400':
+          description: Invalid request 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided commentId is not valid.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  /reactions:
+    post:
+      tags:
+        - Reactions
+      summary: Create a reaction
+      description: Creates a new reaction
+      requestBody:
+        description: Request to create new reaction
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createReactionReq'
+        required: true
+      responses:
+        '201':
+          description:  reaction created Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createCommentRes'
+        '404':
+          description: 'Not Found: This response is shown if the request for information is not there or it could not be imported'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error                
+    get:
+      summary: Get a list of all reaction
+      description: Returns an array containing all the reaction
+      operationId: getReactions
+      tags:
+        - Reactions
+      responses:
+        "200":
+          description: get reaction data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fetchComments"
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+ 
+  /reaction/{reactionId}:
+   put:
+      tags:
+        - Reactions
+      parameters:
+        - name: 'reactionId'
+          in: path
+          required: true
+          description: The UUID of reaction
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: update the existing reaction
+      description: update the existing reaction
+      responses:
+        '200':
+          description: reaction updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: reaction updated successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: reaction not found
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided reactionId is not valid, 1234
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+ 
+   delete:
+      tags:
+        - Reactions
+      parameters:
+        - name: 'reactionId'
+          in: path
+          required: true
+          description: The UUID of reaction
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          schema:
+            type: string
+            format: uuid
+      summary: Delete the reaction
+      description: Deletes the reaction 
+      requestBody:
+        description: Request to delete reaction
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deletedBy:
+                  type: string
+                  example: user@zenmonk.tech    
+        required: true
+      responses:
+        '200':
+          description: reaction deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: reaction deleted successfully.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: reaction not found
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided reactionId is not valid.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  
+
+
+components:
+  schemas:
+    userSchema:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password  
+    usersSchema:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2023-07-25T08:30:00Z"
+        
+        address:
+         type: object
+         properties:
+          street:
+            type: string  
+          suite:
+            type: string
+          city:
+            type: string
+          Zipcode:
+            type: string
+          geo:
+            type: object
+            properties:
+             lat:
+              type: string
+             lng:
+              type: string
+        phone:
+          type: string
+        website:
+          type: string
+        company:
+          type: array
+          items:
+            type: object
+            properties:
+             companyname:
+              type: string
+             catchPhrase:
+              type: string
+             bs:
+              type: string
+        createdBy:
+          type: string
+     
+        updatedAt:
+          type: string
+          format: date-time
+          description: Updation date and time
+          example: "2023-07-25T08:30:00Z"
+
+    postsSchema:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        userid:
+          type: string
+          format: uuid
+        title:
+          type: string
+        body:
+          type: string
+        images:
+          type: array
+          items: 
+            type: string
+            example: null
+        likes:
+          type: object
+          properties:
+           user:
+            type: array
+           items: 
+            type: string
+            example: null  
+        comments:
+            type: array
+            items: 
+               type: object
+               properties:
+                user:
+                 type: string
+                 format: uuid
+                 $ref: '#/components/schemas/commentsSchema'
+                comments:
+                 type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2023-07-25T08:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Updation date and time
+          example: "2023-07-25T08:30:00Z"       
+
+
+    commentsSchema:
+      type: object
+      properties:
+       
+        userId:
+          type: string
+          format: uuid
+        postId: 
+          type: string
+          format: uuid
+        comment:
+          type: string
+        
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2023-07-25T08:30:00Z"
+         
+    
+    reactionsSchema:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        userid:
+          type: string
+          format: uuid
+        postid:
+          type: string
+          format: uuid
+        commentId:
+          type: string
+          format: uuid
+
+        emoji:
+            type: string
+            enum:
+            - like
+            - celebrate
+            - support
+            - love
+            - insightful
+            - funny
+            example: like
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2023-07-25T08:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Updation date and time
+          example: "2023-07-25T08:30:00Z"       
+
+         
+       
+    fetchAllPostsResponse:
+     type: object
+     properties:
+      success:
+        type: string
+        example: true
+      message:
+        type: string
+        example: 
+      getPosts:
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/postsSchema'
+
+    fetchPostsResponse:
+     type: object
+     properties:
+      success:
+        type: string
+        example: true
+      message:
+        type: string
+        example: 
+      getpost:
+          type: object
+          $ref: '#/components/schemas/postsSchema'
+
+    fetchCommentResponse:
+     type: object
+     properties:
+      success:
+        type: string
+        example: true 
+      getComment:
+          type: object
+          $ref: '#/components/schemas/commentsSchema'
+
+    createCommentRes:
+     type: object
+     properties:
+      success:
+        type: string
+        example: true
+      getPost:
+          type: object
+          $ref: '#/components/schemas/commentsSchema'
+
+    createReactionResponse:
+     type: object
+     properties:
+      success:
+        type: string
+        example: true
+      getpost:
+          type: object
+          $ref: '#/components/schemas/reactionsSchema'
+
+
+    loginResponse:
+      type: object
+      properties:
+        success:
+          type: string
+          example: true
+        message:
+          type: string
+          example: login Successful
+        data:
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/usersSchema'
+
+    createPostResponse:
+      type: object
+      properties:
+        success:
+          type: string
+          example: true
+        Post:
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/postsSchema'
+
+    FetchUsersResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/usersSchema'
+
+    fetchComments:
+      type: object
+      properties:
+        data:
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/commentsSchema'
+
+    FetchReactionsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: 
+            type: object
+            $ref: '#/components/schemas/reactionsSchema'
+      
+    loginRequest:
+      type: object
+      properties:
+        
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+        - email
+        - password  
+              
+    postSchema:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        body:
+          type: string
+        images:
+          type: string
+          format: images
+        comments:
+           type: string
+           $ref: '#/components/schemas/commentsSchema' 
+       
+      required:
+        - userid
+        - id        
+        - body    
+
+    createComment:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        postId:
+          type: string
+          format: uuid
+        comment:
+          type: string
+      required:
+        - userId
+        - postId        
+        - comment        
+
+    createReactionReq:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        postId:
+          type: string
+          format: uuid
+        emoji:
+          type: string
+        commentId:
+           type: string
+      required:
+        - userid
+        - postid        
+        - type        
+      
+    UserSchema:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+       
+        address:
+         type: object
+         properties:
+          street:
+            type: string  
+            example: null
+          suite:
+            type: string
+            example: null
+          city:
+            type: string
+            example: null
+          Zipcode:
+            type: string
+            example: null
+          geo:
+            type: object
+            properties:
+             lat:
+              type: string
+              example: null
+             lng:
+              type: string
+              example: null
+        phone:
+          type: string
+          example: null
+        website:
+          type: string
+          example: null
+        company:
+          type: array
+          items:
+            type: object
+            properties:
+             companyname:
+              type: string
+              example: null
+             catchPhrase:
+              type: string
+              example: null
+             bs:
+              type: string
+              example: null
+        createdBy:
+          type: string
+        deletedBy:
+          type: string
+          format: uuid
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2023-07-25T08:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Updation date and time
+          example: "2023-07-25T08:30:00Z"
+      required:
+        - username
+        - email
+        - password
